@@ -28,9 +28,9 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <button size="mini"
-                  type="danger"
-                  @click="handleDelete(scope.$index, scope.row)">删除</button>
+          <el-button size="mini"
+                     type="danger"
+                     @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </template>
       </el-table-column>
 
@@ -70,10 +70,9 @@ export default {
     const inputTodoList = (e) => {
       console.log(e)
       let obj = { do: e, status: 0 }
-      state.list.splice(0, 0, obj)
       state.input_todo = ""
-      addTodo(obj).then((res) => {
-        console.log(res)
+      addTodo(obj).then(() => {
+        fetch()
       })
     }
     const handleSelectionChange = (selections) => {
@@ -83,7 +82,10 @@ export default {
       })
     }
     const handleDelete = (index, row) => {
-      deleteTodo(row._id)
+      deleteTodo(row._id).then(() => {
+        fetch()
+
+      })
     }
     const methods = { fetch, inputTodoList, handleSelectionChange, handleDelete }
     return { ...toRefs(state), ...methods }
