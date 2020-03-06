@@ -26,6 +26,13 @@
               style="width: 100%">
       <el-table-column prop="do">
       </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <button size="mini"
+                  type="danger"
+                  @click="handleDelete(scope.$index, scope.row)">删除</button>
+        </template>
+      </el-table-column>
 
     </el-table>
   </div>
@@ -34,6 +41,7 @@
 <script>
 // @ is an alias to /src
 import { reactive, toRefs } from "@vue/composition-api"
+import { addTodo, listTodo, updateTodo, deleteTodo } from '../api/toDoServer'
 export default {
   name: 'ToDoList',
   filters: {
@@ -47,32 +55,41 @@ export default {
     }
   },
 
-
   setup () {
     const state = reactive(
       {
         input_todo: '',
-        list: [{
-          do: "刷牙",
-          status: 0
-        }, {
-          do: "起床",
-          status: 1
-        }]
+        list: []
       }
     )
+    const fetch = () => {
+      listTodo().then((res) => {
+        state.list = res.data
+      })
+    }
     const inputTodoList = (e) => {
       console.log(e)
-      state.list.splice(0, 0, { do: e, status: 0 })
+      let obj = { do: e, status: 0 }
+      state.list.splice(0, 0, obj)
       state.input_todo = ""
+      addTodo(obj).then((res) => {
+        console.log(res)
+      })
     }
     const handleSelectionChange = (selections) => {
       selections.forEach((selection) => {
         selection.status = 1
+        updateTodo(selection)
       })
     }
-    const methods = { inputTodoList, handleSelectionChange }
+    const handleDelete = (index, row) => {
+      deleteTodo(row._id)
+    }
+    const methods = { fetch, inputTodoList, handleSelectionChange, handleDelete }
     return { ...toRefs(state), ...methods }
+  },
+  created () {
+    this.fetch()
   }
 
 
